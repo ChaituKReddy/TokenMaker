@@ -14,7 +14,7 @@ function App() {
     // console.log(account)
     // loadBlockchainData();
     // console.log("App");
-    document.title = "This is a title"
+    document.title = "TokenMaker"
   },[])
 
   const loadWeb3 = async() => {
