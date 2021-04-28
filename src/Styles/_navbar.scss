@@ -1,0 +1,30 @@
+.navbar {
+  background: #100c08;
+  width: 100vw;
+  height: 7vh;
+  min-width: 900px;
+}
+
+.contents {
+  //   background: blue;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  color: white;
+}
+
+.title {
+  //   background: yellow;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.postresults {
+  display: flex;
+}
+
+.address {
+  font-size: 20px;
+}
