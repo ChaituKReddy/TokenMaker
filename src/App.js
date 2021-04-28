@@ -3,11 +3,14 @@ import NavBar from './Components/NavBar';
 import DashBoard from './Components/DashBoard';
 import {useState, useEffect} from 'react';
 import Web3 from 'web3';
+import FootBar from './Components/FootBar';
 
 function App() {
 
   const [account, setAccount] = useState('');
-  const[web3, setWeb3] = useState('');
+  const [web3, setWeb3] = useState('');
+  const [chainId, setChainId] = useState('');
+  
 
   useEffect(() => {
     loadWeb3();
@@ -25,6 +28,9 @@ function App() {
       const accounts = await web3.eth.getAccounts();
       setAccount(accounts[0]);
       setWeb3(web3);
+      const id = await web3.eth.net.getId();
+      console.log(id.toString())
+      setChainId(id.toString());
     } if(window.web3) {
       window.web3 = new Web3(window.web3.currentProvider);
       const web3 = window.web3;
@@ -46,14 +52,22 @@ function App() {
         setAccount(accounts[0]);
       });
     }
+
+    const listenNetworkChange = async() => {
+      window.ethereum.on('chainChanged', chainId => {
+        console.log(chainId.substring(2));
+        setChainId(chainId.substring(2));
+      })
+    }
+    listenNetworkChange();
     listenMMAccount();
   }, []);
 
   return (
     <div className="App">
       <NavBar account={account}/>
-      <DashBoard account = {account} web3={web3}/>
-      {console.log(account)}
+      <DashBoard account = {account} web3={web3} chainId = {chainId}/>
+      <FootBar chainId={chainId}/>
     </div>
   );
 }

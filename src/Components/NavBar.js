@@ -3,7 +3,7 @@ const NavBar = ({account}) => {
         <div className="navbar">
             <div className="contents">
                 <div className="title">
-                    TokenMaker
+                    <a href = "/">TokenMaker</a>
                 </div>
                 <div className="address">
                 {account}

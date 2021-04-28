@@ -1,5 +1,5 @@
 import {useState} from 'react';
-const DashBoard = ({account, web3}) => {
+const DashBoard = ({account, web3, chainId}) => {
 
     //State
     const [name, setName] = useState('');
@@ -12,21 +12,23 @@ const DashBoard = ({account, web3}) => {
     const [step, setStep] = useState(1);
     const [tokenAddress, setTokenAddress] = useState('');
     const [uni, setUni] = useState('');
+    const [pan, setPan] = useState('');
 
     const createToken = () => {
-        // var name = name;
-        // var symbol = symbol;
-        // var decimals = decimals ;
-        // var totalSupply = totalSupply ;
-        // var tokenOwnerAddress = owner ;
+        const decimals1 = Number(decimals);
+        const decimals2 = 10 ** decimals1;
+        const decimals3 = decimals2.toString().substring(1);
+        const supply = totalSupply + decimals3.toString();
+        console.log(supply);
         if(account === '') {
-            setError('Connect to wallet first');
+            setError('Unlock Metamask');
+            setTimeout(() => {
+                setError('');
+            }, 2000);
         } else {
             if(name === '' || symbol === '' || decimals === '' || totalSupply === '' || owner === ''){
                     setError("Wrong parameters");
-                    setTimeout(() => {
-                        setError('');
-                    }, 2000);
+                    
             } else {
                 var tokenContract = new web3.eth.Contract([{"inputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"symbol","type":"string"},{"internalType":"uint8","name":"decimals","type":"uint8"},{"internalType":"uint256","name":"totalSupply","type":"uint256"},{"internalType":"address","name":"tokenOwnerAddress","type":"address"}],"payable":true,"stateMutability":"payable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"constant":true,"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"uint256","name":"value","type":"uint256"}],"name":"burn","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]);
                 var token = tokenContract.deploy({
@@ -35,38 +37,47 @@ const DashBoard = ({account, web3}) => {
                         name,
                         symbol,
                         decimals,
-                        totalSupply,
+                        supply.toString(),
                         owner,
                     ]
                 }).send({
                     from: account, 
                     gas: '4700000'
-                // }, function(e, contract){
-                //     console.log(e, contract);
-                //     const link = 'https://rinkeby.etherscan.io/tx/' + contract;
-                //     setError(<a href={link} target="_blank" rel="noreferrer">Check Transaction on Etherscan</a>)
-                //     const receipt = async() => {
-                //         await token;
-                //         console.log(token);
-                //         setLog(token);
-                //     }
-                //     receipt().then(setLog(1));
-                //     if (typeof contract.address !== 'undefined') {
-                //         console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
-                //     }
                 }, function(e, contract) {
                     console.log(e, contract);
-                    const link = 'https://rinkeby.etherscan.io/tx/' + contract;
-                    setError(<a href={link} target="_blank" rel="noreferrer">Check Transaction on Etherscan</a>)
+                    if(e !== null && e.code === 4001) {
+                        // console.log('Rejected');
+                        setError("User Denied transaction, try again");
+                        setTimeout(() => {
+                            setError('');
+                        }, 5000)
+                    } else {
+                    let link;
+                    if(chainId === '4') {link = 'https://rinkeby.etherscan.io/tx/' + contract;}
+                    else if(chainId === '1') {link = 'https://etherscan.io/tx/' + contract;}
+                    else if(chainId === '2a') {link = 'https://kovan.etherscan.io/tx/' + contract;}
+                    else if(chainId === '3') {link = 'https://ropsten.etherscan.io/tx/' + contract;}
+                    else if(chainId === '38' || chainId === '56') {link = 'https://bscscan.com/tx/' + contract;}
+                    else if(chainId === '97' || chainId === '61') {link = 'https://testnet.bscscan.com/tx/' + contract;}
+                    setError(<a href={link} target="_blank" rel="noreferrer">Check Transaction on BlockExplorer</a>)
                     const rec = async() => {
                                 const r = await token;
                                 console.log(r);
                                 const address = r.options.address;
-                                const tokenLink = 'https://rinkeby.etherscan.io/address/' + r.options.address;
+                                let tokenLink;
+                                if(chainId === '4') {tokenLink = 'https://rinkeby.etherscan.io/address/' + r.options.address;}
+                                else if(chainId === '1') {tokenLink = 'https://etherscan.io/address/' + r.options.address;}
+                                else if(chainId === '2a') {tokenLink = 'https://kovan.etherscan.io/address/' + r.options.address;}
+                                else if(chainId === '3') {tokenLink = 'https://ropsten.etherscan.io/address/' + r.options.address;}
+                                else if(chainId === '38' || chainId === '56') {tokenLink = 'https://bscscan.com/address/' + r.options.address;}
+                                else if(chainId === '97' || chainId === '61') {tokenLink = 'https://testnet.bscscan.com/address/' + r.options.address;}
+                                // const tokenLink = 'https://rinkeby.etherscan.io/address/' + r.options.address;
                                 setTokenAddress(<a href={tokenLink} target = "_blank" rel="noreferrer">{address}</a>);
                                 setError(<a href={tokenLink} target = "_blank" rel="noreferrer">{address}</a>);
                                 setToken('Token address:')
                                 const uniLink = 'https://app.uniswap.org/#/add/ETH/' + address;
+                                const panLink = 'https://exchange.pancakeswap.finance/#/add/BNB/' + address;
+                                setPan(panLink);
                                 setUni(uniLink);
                                 setStep(2);
 
@@ -95,16 +106,9 @@ const DashBoard = ({account, web3}) => {
                                   }
                             }
                     rec()
-
+                    }
                 })
             }
-
-            // console.log(token);
-            // setName('');
-            // setSymbol('');
-            // setDecimals('');
-            // setTotalSupply('');
-            // setOwner('');
         }
     }
 
@@ -113,7 +117,7 @@ const DashBoard = ({account, web3}) => {
             <div className="tokenDashboard">
                 <div className="tokenDetails">
                     <div className="titleD">
-                        Enter Token Details
+                        {step === 1 ? 'Enter Token Details' : 'Token Details'}
                     </div>
                     <div className="details">
                         {step === 1 ? <div className="tokencontentdetails">
@@ -150,14 +154,21 @@ const DashBoard = ({account, web3}) => {
                                         <div className="balance">
                                             Owner Balance: {totalSupply}
                                         </div>
-                                    </div><div className="buttondiv">
+                                    </div>{chainId === '38' || chainId === '56' || chainId === '61' || chainId === '97' ? <div className="buttondiv">
+                                    <div className="linkUniSwap">
+                                        <a href={pan} target="_blank" rel="noreferrer"><button>PancakeSwap</button></a>
+                                    </div>
+                                    <div className="linkunicrypt">
+                                    <a href="https://www.unicrypt.network/amm/pancakev2/locker" target="_blank" rel="noreferrer"><button>UniCrypt</button></a>
+                                    </div>
+                                    </div> : <div className="buttondiv">
                                     <div className="linkUniSwap">
                                         <a href={uni} target="_blank" rel="noreferrer"><button>UniSwap</button></a>
                                     </div>
                                     <div className="linkunicrypt">
                                     <a href="https://www.unicrypt.network/amm/uni/locker" target="_blank" rel="noreferrer"><button>UniCrypt</button></a>
                                     </div>
-                                    </div>
+                                    </div>}
                                    
                                 </div>
                                 </div>}
