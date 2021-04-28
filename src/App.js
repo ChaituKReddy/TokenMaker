@@ -14,6 +14,7 @@ function App() {
     // console.log(account)
     // loadBlockchainData();
     // console.log("App");
+    document.title = "This is a title"
   },[])
 
   const loadWeb3 = async() => {
