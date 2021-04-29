@@ -1,6 +1,7 @@
 import './Styles/all.scss';
 import NavBar from './Components/NavBar';
-import DashBoard from './Components/DashBoard';
+// import DashBoard from './Components/DashBoard';
+import New from './Components/New'
 import {useState, useEffect} from 'react';
 import Web3 from 'web3';
 import FootBar from './Components/FootBar';
@@ -63,13 +64,26 @@ function App() {
     listenMMAccount();
   }, []);
 
-  return (
-    <div className="App">
-      <NavBar account={account}/>
-      <DashBoard account = {account} web3={web3} chainId = {chainId}/>
-      <FootBar chainId={chainId}/>
-    </div>
-  );
+  if(chainId === '' || web3 === '') {
+    return(
+      <div className="appnoweb">
+        <div className="web3error">
+          Web3 not injected, please try unlocking Metamask
+        </div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="App">
+        <NavBar account={account}/>
+        {/* <DashBoard account = {account} web3={web3} chainId = {chainId}/> */}
+        <New account = {account} web3={web3} chainId = {chainId}/>
+        <FootBar chainId={chainId}/>
+      </div>
+    );
+  }
+
+  
 }
 
 export default App;
